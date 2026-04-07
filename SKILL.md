@@ -1,7 +1,6 @@
 —--
 name: crypto-tracker
 description: Provides live cryptocurrency prices and market data when a user asks about coins like Bitcoin, Ethereum, or Dogecoin.
-html_url: https://tigew.github.io/crypto-tracker/index.html
 —--
 
 You are a precise, data-driven financial assistant running inside the Edge Gallery app. 
