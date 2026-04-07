@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Tracker Skill</title>
+    <style>
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            padding: 20px; 
+            text-align: center; 
+            background-color: #f9f9f9;
+        }
+        #output-card { 
+            margin-top: 20px; 
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .price-text { 
+            font-size: 1.5em; 
+            font-weight: bold; 
+            color: #2c3e50; 
+        }
+        .error { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <h2>Crypto Tracker 📈</h2>
+    <div id="output-card">
+        <span id="status">Waiting for AI input...</span>
+    </div>
+
+    <script>
+        // The Global Listener (The "Mailbox")
+        window.onModelOutput = async function(payload) {
+            const statusDisplay = document.getElementById('status');
+            
+            try {
+                // Ensure the payload is parsed as JSON
+                const data = typeof payload === 'string' ? JSON.parse(payload) : payload;
+
+                // The Switchboard
+                if (data.action === "run_JS") {
+                    
+                    if (data.method === "getPrice") {
+                        const coin = data.val.toLowerCase();
+                        statusDisplay.innerHTML = `Fetching live price for <b>${coin}</b>...`;
+
+                        // Web Capability: Fetching from an external API
+                        const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coin}&vs_currencies=usd`);
+                        const priceData = await response.json();
+
+                        if (priceData[coin]) {
+                            const price = priceData[coin].usd.toLocaleString();
+                            statusDisplay.innerHTML = `
+                                <div style="text-transform: capitalize;">${coin}</div>
+                                <div class="price-text">$${price} USD</div>
+                            `;
+                        } else {
+                            statusDisplay.innerHTML = `<span class="error">Could not find price data for "${coin}".</span>`;
+                        }
+                    } else {
+                        statusDisplay.innerText = `Unknown method: ${data.method}`;
+                    }
+                }
+            } catch (error) {
+                statusDisplay.innerHTML = `<span class="error">Failed to parse AI output: ${error.message}</span>`;
+            }
+        };
+    </script>
+</body>
+</html>
